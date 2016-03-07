@@ -1,4 +1,4 @@
-## Mark-up file for run_analysis.R
+## CodeBook Markdown file for run_analysis.R
 ##
 ## There are 17 data sets & 5 Values in run_analysis.R. Below is a description of the command followed in the next line by the command
 ##
