@@ -1,5 +1,5 @@
 # Getting-and-Cleaning-Data-Course-Project
-These are the submissions for the Getting and Cleaning Data Course Project from Cousera
+# These are the submissions for the Getting and Cleaning Data Course Project from Cousera
 
 # Mark-up file for run_analysis.R
 #
