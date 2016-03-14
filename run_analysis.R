@@ -1,71 +1,80 @@
-##    run_analysis.R does the following:
-##
+## Create one R script called run_analysis.R that does the following:
 ## 1. Merges the training and the test sets to create one data set.
 ## 2. Extracts only the measurements on the mean and standard deviation for each measurement.
 ## 3. Uses descriptive activity names to name the activities in the data set
-## 4. Appropriately labels the data set with descriptive variable names.
-## 5. From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
-##
-##
-## First the test and trial tables need to be joined with the y file being column[,1],
-## the subject file being column[,2]
-## and the X file representing all columns to the right
-##
+## 4. Appropriately labels the data set with descriptive activity names.
+## 5. Creates a second, independent tidy data set with the average of each variable for each activity and each subject.
 
-setwd("C:/Users/Brandon/Documents/R/Coursera/UCI HAR Dataset/test")
-read_test_y_table <- read.table("Y_test.txt")
-read_test_x_table <- read.table("X_test.txt")
-read_test_subject_table <- read.table("subject_test.txt")
+if (!require("data.table")) {
+  install.packages("data.table")
+}
 
-setwd("C:/Users/Brandon/Documents/R/Coursera/UCI HAR Dataset/train")
-read_train_y_table <- read.table("Y_train.txt")
-read_train_x_table <- read.table("X_train.txt")
-read_train_subject_table <- read.table("subject_train.txt")
+if (!require("reshape2")) {
+  install.packages("reshape2")
+}
 
-new_x_table <- rbind(read_test_x_table,read_train_x_table)
-new_y_table <- rbind(read_test_y_table,read_train_y_table)
-new_subject_table <- rbind(read_test_subject_table,read_train_subject_table)
+require("data.table")
+require("reshape2")
 
-final_y_table <- cbind(new_subject_table,new_y_table)
+# Set Working Directory - will change user to user
 
-## once the tables are joined we have to add descriptive names & open the features file
+setwd("C:/Users/Brandon/Documents/R/Coursera")
 
-names(final_y_table) <- c("subject","features")
-setwd("C:/Users/Brandon/Documents/R/Coursera/UCI HAR Dataset")
-read_features <- t(read.table("features.txt"))
-names(new_x_table) <- c(read_features[2,])
+# Load: activity labels
+activity_labels <- read.table("./UCI HAR Dataset/activity_labels.txt")[,2]
 
-## now that the names are added we bind the X and Y tables
+# Load: data column names
+features <- read.table("./UCI HAR Dataset/features.txt")[,2]
 
-final_table <- cbind(final_y_table,new_x_table)
+# Extract only the measurements on the mean and standard deviation for each measurement.
+extract_features <- grepl("mean|std", features)
 
-## then we add the activity names based on the activity_id
-## first we read the activity file
+# Load and process X_test & y_test data.
+X_test <- read.table("./UCI HAR Dataset/test/X_test.txt")
+y_test <- read.table("./UCI HAR Dataset/test/y_test.txt")
+subject_test <- read.table("./UCI HAR Dataset/test/subject_test.txt")
 
-read_activity <- read.table("activity_labels.txt")
+names(X_test) = features
 
-## then we join the names by id and once merged convert colnames to lowercase to allow for searching
+# Extract only the measurements on the mean and standard deviation for each measurement.
+X_test = X_test[,extract_features]
 
-labeled_table <- merge(read_activity,final_table,by.x = "V1",by.y = "features")
-names(labeled_table) <- c("activity_id", "activity_name" , "subject_id" , tolower(read_features[2,]))
+# Load activity labels
+y_test[,2] = activity_labels[y_test[,1]]
+names(y_test) = c("Activity_ID", "Activity_Label")
+names(subject_test) = "subject"
 
-## now we return only columns associated with mean or standard deviation
+# Bind data
+test_data <- cbind(as.data.table(subject_test), y_test, X_test)
 
-only_mean_or_std <- sort(c(1,2,3,grep("mean()",colnames(labeled_table)),grep("std()",colnames(labeled_table))), decreasing = FALSE)
-narrow_table <- labeled_table[,only_mean_or_std]
+# Load and process X_train & y_train data.
+X_train <- read.table("./UCI HAR Dataset/train/X_train.txt")
+y_train <- read.table("./UCI HAR Dataset/train/y_train.txt")
 
-## in order to summarize you need to call the plyr package
+subject_train <- read.table("./UCI HAR Dataset/train/subject_train.txt")
 
-require(plyr)
+names(X_train) = features
 
-## then we can get averages by activity
+# Extract only the measurements on the mean and standard deviation for each measurement.
+X_train = X_train[,extract_features]
 
-activity_factor <- factor(narrow_table$activity_name)
-activity_levels <- levels(activity_factor)
-mean_by_activity <- as.data.frame(cbind(colnames(narrow_table[4:89]),ddply(narrow_table,c("activity_levels"), summarize, col_means <- colMeans(narrow_table[,4:89]))))
+# Load activity data
+y_train[,2] = activity_labels[y_train[,1]]
+names(y_train) = c("Activity_ID", "Activity_Label")
+names(subject_train) = "subject"
 
-## or you can get averages by subject
+# Bind data
+train_data <- cbind(as.data.table(subject_train), y_train, X_train)
 
-subject_factor <- factor(narrow_table$subject_id)
-subject_levels <- levels(subject_factor)
-mean_by_subject <- as.data.frame(cbind(colnames(narrow_table[4:89]),ddply(narrow_table,c("subject_levels"), summarize, col_means <- colMeans(narrow_table[,4:89]))))
+# Merge test and train data
+data = rbind(test_data, train_data)
+
+id_labels   = c("subject", "Activity_ID", "Activity_Label")
+data_labels = setdiff(colnames(data), id_labels)
+melt_data      = melt(data, id = id_labels, measure.vars = data_labels)
+
+# Apply mean function to dataset using dcast function0
+
+tidy_data   = dcast(melt_data, subject + Activity_Label ~ variable, mean)
+
+write.table(tidy_data, file = "./tidy_data.txt")
