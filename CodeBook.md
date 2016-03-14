@@ -1,75 +1,49 @@
-## CodeBook Markdown file for run_analysis.R
-##
-## There are 17 data sets & 5 Values in run_analysis.R. Below is a description of the command followed in the next line by the command
-##
-## Data Sets (in order of usage):
-##
-## 1.) read_test_y_table reads the Y_test.txt file
-##     read_test_y_table <- read.table("Y_test.txt")
-##
-## 2.) read_test_x_table  reads the X_test.txt file
-##     read_test_x_table <- read.table("X_test.txt")
-##     
-## 3.) read_test_subject_table   reads the subject_test.txt file
-##     read_test_subject_table <- read.table("subject_test.txt")
-##     
-## 4.) read_train_y_table  reads the Y_trial.txt file
-##     read_train_y_table <- read.table("Y_train.txt")
-##     
-## 5.) read_train_x_table  reads the X_trial.txt file
-##     read_train_x_table <- read.table("X_train.txt")
-##     
-## 6.) read_train_subject_table   reads the subject_trial.txt file
-##     read_train_subject_table <- read.table("subject_train.txt")
-##     
-## 7.) new_x_table  binds the two x.txt files
-##     new_x_table <- rbind(read_test_x_table,read_train_x_table)
-##     
-## 8.) new_y_table  binds the two y.txt files
-##     new_y_table <- rbind(read_test_y_table,read_train_y_table)
-##     
-## 9.) new_subject_table  binds the two subject.txt files
-##     new_subject_table <- rbind(read_test_subject_table,read_train_subject_table)
-##     
-## 10.) final_y_table  appends the new_y_table to include the subject.txt files
-##     final_y_table <- cbind(new_subject_table,new_y_table)
-##     
-## 11.) read_features  reads the features.txt file
-##     read_features <- t(read.table("features.txt"))
-##     
-## 12.) final_table  binds the new_x_table to the final_y_table
-##     final_table <- cbind(final_y_table,new_x_table)
-##     
-## 13.) read_activity  reads the activity_labels.txt file
-##     read_activity <- read.table("activity_labels.txt")
-##     
-## 14.) labeled_table  merges the read_activity and final_tables by the subject_id to return all column headers
-##     labeled_table <- merge(read_activity,final_table,by.x = "V1",by.y = "features")
-##     
-## 15.) narrow_table  reduces the final_table to only columns for mean or standard deviation
-##     narrow_table <- labeled_table[,only_mean_or_std]
-##     
-## 16.) mean_by_activity - returns the mean by feature by activity level
-##     mean_by_activity <- as.data.frame(cbind(colnames(narrow_table[4:89]),ddply(narrow_table,c("activity_levels"), summarize, col_means <- colMeans(narrow_table[,4:89]))))
-##     
-## 17.) mean_by_subject - returns the mean by feature by subject level
-##     mean_by_subject <- as.data.frame(cbind(colnames(narrow_table[4:89]),ddply(narrow_table,c("subject_levels"), summarize, col_means <- colMeans(narrow_table[,4:89]))))
-##     
-## 
-##
-## 4 Values (in order of usage):
-##
-## 1.) only_mean_or_std  exludes columns not referencing mean to standard deviation
-##	only_mean_or_std <- sort(c(1,2,3,grep("mean()",colnames(labeled_table)),grep("std()",colnames(labeled_table))), decreasing = FALSE)
-## 
-## 2.) activity_factor  assigns factors to the activities
-## 	activity_factor <- factor(narrow_table$activity_name)
-## 
-## 3.) activity_levels  assigns levels to the activities
-## 	activity_levels <- levels(activity_factor)
-## 
-## 4.) subject_factor  assigns factors to the subjects
-## 	subject_factor <- factor(narrow_table$subject_id)
-## 
-## 5.) subject_levels  assigns levels to the subjects
-##	subject_levels <- levels(subject_factor)
+Getting and Cleaning Data - Course Project Codebook
+===================================================
+
+Data Sources
+------------
+
+This project utilizes the UCI HAR Dataset available online at https://archive.ics.uci.edu/ml/datasets/Human+Activity+Recognition+Using+Smartphones. 
+
+Feature Selection
+-----------------
+
+The UCI HAR Dataset consists of accelerometer and gyroscope measurements made by 30 individual test subjects, with individual data vectors then classified as one of six different activity types. The resulting data is then divided into one training set and one test set. 
+
+This project combines the training and test datasets, excludes all but the mean and standard deviation measurements for each feature, and then calculates the mean value of each measurement for each activity type per test subject. For detailed information on how each factor is computed in the original UCI HAR Dataset, please see the "Feature Description" section below which has been included verbatim from the original dataset documentation.
+
+Feature Description 
+-------------------
+
+The features selected for this database come from the accelerometer and gyroscope 3-axial raw signals tAcc-XYZ and tGyro-XYZ. These time domain signals (prefix 't' to denote time) were captured at a constant rate of 50 Hz. Then they were filtered using a median filter and a 3rd order low pass Butterworth filter with a corner frequency of 20 Hz to remove noise. Similarly, the acceleration signal was then separated into body and gravity acceleration signals (tBodyAcc-XYZ and tGravityAcc-XYZ) using another low pass Butterworth filter with a corner frequency of 0.3 Hz. 
+
+Subsequently, the body linear acceleration and angular velocity were derived in time to obtain Jerk signals (tBodyAccJerk-XYZ and tBodyGyroJerk-XYZ). Also the magnitude of these three-dimensional signals were calculated using the Euclidean norm (tBodyAccMag, tGravityAccMag, tBodyAccJerkMag, tBodyGyroMag, tBodyGyroJerkMag). 
+
+Finally a Fast Fourier Transform (FFT) was applied to some of these signals producing fBodyAcc-XYZ, fBodyAccJerk-XYZ, fBodyGyro-XYZ, fBodyAccJerkMag, fBodyGyroMag, fBodyGyroJerkMag. (Note the 'f' to indicate frequency domain signals). 
+
+These signals were used to estimate variables of the feature vector for each pattern:  
+'-XYZ' is used to denote 3-axial signals in the X, Y and Z directions.
+
+* tBodyAcc-XYZ
+* tGravityAcc-XYZ
+* tBodyAccJerk-XYZ
+* tBodyGyro-XYZ
+* tBodyGyroJerk-XYZ
+* tBodyAccMag
+* tGravityAccMag
+* tBodyAccJerkMag
+* tBodyGyroMag
+* tBodyGyroJerkMag
+* fBodyAcc-XYZ
+* fBodyAccJerk-XYZ
+* fBodyGyro-XYZ
+* fBodyAccMag
+* fBodyAccJerkMag
+* fBodyGyroMag
+* fBodyGyroJerkMag
+
+The set of variables that were estimated from these signals are: 
+
+* mean(): Mean value
+* std(): Standard deviation
