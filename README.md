@@ -1,9 +1,9 @@
  Getting-and-Cleaning-Data-Course-Project
  These are the submissions for the Getting and Cleaning Data Course Project from Cousera
  
-    run_analysis.R is the code that creates the tidy dataset. It can be found in this repo.
+ run_analysis.R is the code that creates the tidy dataset. It can be found in this repo.
 
-    run_analysis.R does the following:
+ run_analysis.R does the following:
 
 1. Merges the training and the test sets to create one data set.
 2. Extracts only the measurements on the mean and standard deviation for each measurement.
